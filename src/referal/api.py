@@ -26,7 +26,7 @@ templates = Jinja2Templates(directory='templates')
 
 
 @router.post('/register', status_code=status.HTTP_201_CREATED)
-async def get_register_code(phone_number: schemas.UserCreate) -> str:
+async def get_register_code(phone_number: schemas.UserCreate) -> None:
     """Регистрация пользователя."""
 
     async with async_session_factory() as session:
@@ -43,7 +43,6 @@ async def get_register_code(phone_number: schemas.UserCreate) -> str:
         auth_code = await generate_auth_code()
         await r.set(user_phone_number, auth_code, ex=300)
         print(auth_code)
-        return auth_code
 
 
 @router.post('/login', status_code=status.HTTP_200_OK)

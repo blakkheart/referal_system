@@ -20,12 +20,11 @@ services:
       timeout: 3s
       retries: 3
       start_period: 3s
-    ports:
-      - 5432:5432
 
   redis:
     image: redis:alpine
     restart: always
+    env_file: ./src/.env
     volumes:
       - redis_data:/root/redis
       - redis_conf:/usr/local/etc/redis/redis.conf
@@ -34,5 +33,16 @@ services:
       interval: 1s
       timeout: 3s
       retries: 5
+  
+  backend:
+    build: ./
+    env_file: ./src/.env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command:
+      ["uvicorn", "main:app", "--proxy-headers", "--host", "0.0.0.0", "--port", "8000" ]
     ports:
-      - 6379:6379
+      - 127.0.0.1:8000:8000
